@@ -1,5 +1,4 @@
-// Package LFShook allows users to write to the logfiles using logrus.
-package lfshook
+package atshook
 
 import (
 	"errors"
