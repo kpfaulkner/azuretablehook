@@ -1,7 +1,6 @@
 package atshook
 
 import (
-	"fmt"
 	"github.com/sirupsen/logrus"
 	"github.com/Azure/azure-sdk-for-go/storage"
 	"os"
@@ -11,10 +10,10 @@ import (
 
 const (
 	// TableAlreadyExists indicates table already exists in Azure.
-	TableAlreadyExists string = "TableAlreadyExists"
-	TimestampId string = "LogTimestamp"
-	LevelId string = "Level"
-	MessageId string = "Message"
+	tableAlreadyExists string = "TableAlreadyExists"
+	timestampID string = "LogTimestamp"
+	levelID string = "Level"
+	messageID string = "Message"
 )
 
 // AtsHook to handle writing to Azure Table Storage
@@ -77,7 +76,7 @@ func createTable( tableCli storage.TableServiceClient , tableName string) (*stor
 			return nil, err
 		} 
 		
-		if azureErr.Code != TableAlreadyExists {
+		if azureErr.Code != tableAlreadyExists {
 			// we are ok if the table already exists. Otherwise return nil
 			return nil, errors.New("Unable to create log table")
 		}
@@ -113,9 +112,9 @@ func (hook *AtsHook) Fire(entry *logrus.Entry) error {
 	for k,v := range entry.Data {
 		props[k] = v
 	}
-	props[TimestampId] = entry.Time.UTC()
-	props[LevelId] = entry.Level.String()
-	props[MessageId] = entry.Message	
+	props[timestampID] = entry.Time.UTC()
+	props[levelID] = entry.Level.String()
+	props[messageID] = entry.Message	
 	tableEntry.Properties = props
 	err := tableEntry.Insert(storage.EmptyPayload, nil)
 	if err != nil {
