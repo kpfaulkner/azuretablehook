@@ -12,7 +12,9 @@ import (
 const (
 	// TableAlreadyExists indicates table already exists in Azure.
 	TableAlreadyExists string = "TableAlreadyExists"
-	TimestampId string = "Timestamp"
+	TimestampId string = "LogTimestamp"
+	LevelId string = "Level"
+	MessageId string = "Message"
 )
 
 // AtsHook to handle writing to Azure Table Storage
@@ -45,7 +47,7 @@ func NewHook(accountName string, accountKey string, tableName string, level logr
 	hook := &AtsHook{}	
 	client, err  := createTableClient(accountName, accountKey)
 	if err != nil {
-		fmt.Printf("Unable to create client for Azure Table Storage hook %s", err)
+		//fmt.Printf("Unable to create client for Azure Table Storage hook %s", err)
 		return nil // is nil valid?
 	}
 	
@@ -112,7 +114,8 @@ func (hook *AtsHook) Fire(entry *logrus.Entry) error {
 		props[k] = v
 	}
 	props[TimestampId] = entry.Time.UTC()
-	
+	props[LevelId] = entry.Level.String()
+	props[MessageId] = entry.Message	
 	tableEntry.Properties = props
 	err := tableEntry.Insert(storage.EmptyPayload, nil)
 	if err != nil {
